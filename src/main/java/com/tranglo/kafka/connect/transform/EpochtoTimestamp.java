@@ -6,21 +6,24 @@ import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
+
 import org.apache.kafka.connect.transforms.Transformation;
+import com.tranglo.kafka.connect.transform.util.SchemaUtil;
+import com.tranglo.kafka.connect.transform.util.SimpleConfig;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import com.tranglo.kafka.connect.transform.util.SchemaUtil;
-import com.tranglo.kafka.connect.transform.util.SimpleConfig;
 import static com.tranglo.kafka.connect.transform.util.Requirements.requireStruct;
 
 public abstract class EpochtoTimestamp<R extends ConnectRecord<R>> implements Transformation<R> {
+
     public static final String OVERVIEW_DOC =
             "Convert timestamps between different formats such as Unix epoch, strings, and Connect Date/Timestamp types."
                     + "Applies to individual fields or to the entire value."
@@ -33,10 +36,6 @@ public abstract class EpochtoTimestamp<R extends ConnectRecord<R>> implements Tr
                     "The field containing the timestamp");
     private static final String PURPOSE = "converting timestamp formats";
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-
-    private List<String> field;
-
-    static final long NANOSECONDS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
 
     private static class Config {
         Config(String field) {
@@ -87,17 +86,21 @@ public abstract class EpochtoTimestamp<R extends ConnectRecord<R>> implements Tr
                     //        1382659200000000000 => Nanoseconds (19 digits)
                     //        1483232054547470 => Microseconds (16 digits)
                     //        1590969600021 => Milliseconds (13 digits)
-                    Long d = (Long) original_value.get(field.name());
-                    int l = String.valueOf(d).length();
-
                     String new_date;
 
-                    if(l == 19) {
-                        new_date = convertNanos((Long) original_value.get(field.name()));
-                    } else if(l == 16) {
-                        new_date = convertMicros((Long) original_value.get(field.name()));
+                    if(original_value.get(field.name()) instanceof Integer) {
+                        new_date = convertEpochDay((Long) original_value.get(field.name()));
                     } else {
-                        new_date = convertMillis((Long) original_value.get(field.name()));
+                        Long d = (Long) original_value.get(field.name());
+                        int l = String.valueOf(d).length();
+
+                        if (l == 19) {
+                            new_date = convertNanos((Long) original_value.get(field.name()));
+                        } else if (l == 16) {
+                            new_date = convertMicros((Long) original_value.get(field.name()));
+                        } else {
+                            new_date = convertMillis((Long) original_value.get(field.name()));
+                        }
                     }
 
                     updatedValues.put(field.name(), new_date);
@@ -112,6 +115,14 @@ public abstract class EpochtoTimestamp<R extends ConnectRecord<R>> implements Tr
         }
 
         return newRecord(record, new_schema, updatedValues);
+    }
+
+    public String convertEpochDay(Long ms) {
+        LocalDate local_date = LocalDate.ofEpochDay(ms);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        return local_date.format(formatter);
+
     }
 
     public String convertMillis(Long ms) {

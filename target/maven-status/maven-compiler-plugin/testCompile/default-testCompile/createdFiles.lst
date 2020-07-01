@@ -1,0 +1,10 @@
+com\tranglo\kafka\connect\transform\MySourceTaskIT.class
+com\tranglo\kafka\connect\transform\MySourceConnectorTest.class
+com\tranglo\kafka\connect\transform\MySinkConnectorTest.class
+com\tranglo\kafka\connect\transform\EpochtoTimestampTest.class
+com\tranglo\kafka\connect\transform\MySinkTaskTest.class
+com\tranglo\kafka\connect\transform\DocumentationTest.class
+com\tranglo\kafka\connect\transform\MyKeyValueTransformationTest.class
+com\tranglo\kafka\connect\transform\MySinkTaskIT.class
+com\tranglo\kafka\connect\transform\MyConverterTest.class
+com\tranglo\kafka\connect\transform\MySourceTaskTest.class

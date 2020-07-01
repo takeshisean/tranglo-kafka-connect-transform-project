@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.tranglo.kafka.connect.transform.DocumentationTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.81 s - in com.tranglo.kafka.connect.transform.DocumentationTest
